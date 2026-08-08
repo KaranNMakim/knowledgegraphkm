@@ -15,6 +15,7 @@ def main() -> None:
     if args.init_db:
         initialize_database()
         print("Internal database initialized.")
+        return
 
     uvicorn.run("kgkm.main:app", host=args.host, port=args.port, reload=False)
 
