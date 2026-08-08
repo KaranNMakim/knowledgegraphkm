@@ -1,8 +1,15 @@
 # GraphLoom — LinkedIn launch post
 
-## Recommended video
-Use: `graphloom-demo-tour-linkedin-cut.mp4` (~80s, trimmed)
-Fallback full recording: `graphloom-demo-tour.mp4`
+## Recommended media for LinkedIn
+Use `docs/graphloom-demo-tour.mp4` — LinkedIn-safe encode:
+- H.264 video + AAC audio (silent track)
+- 1920×1080, 30fps, ~12MB, ~82s
+
+Fallback if video still fails: upload `docs/graphloom-demo-carousel.pdf` as a **Document** carousel.
+
+### Upload tip
+In LinkedIn: **Start a post → click the Video icon** (not Document, not Featured samples).
+The help article `a564109` is for profile Featured media — feed video posts are different.
 
 ---
 
