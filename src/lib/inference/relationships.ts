@@ -216,11 +216,31 @@ export function parseSqlRelationships(sql: string, projectId: string) {
     )
     .all(projectId) as (ColumnMeta & { table_name: string })[];
 
+  const aliasToTable = new Map<string, string>();
+  const fromRe =
+    /(?:from|join)\s+([a-zA-Z0-9_]+)\s+(?:as\s+)?([a-zA-Z0-9_]+)?/gi;
+  let aliasMatch: RegExpExecArray | null;
+  while ((aliasMatch = fromRe.exec(sql)) !== null) {
+    const tableName = aliasMatch[1];
+    const alias = aliasMatch[2] || tableName;
+    // Skip SQL keywords accidentally captured as aliases
+    if (["on", "where", "left", "right", "inner", "outer", "join"].includes(alias.toLowerCase())) {
+      aliasToTable.set(tableName.toLowerCase(), tableName);
+      continue;
+    }
+    aliasToTable.set(alias.toLowerCase(), tableName);
+    aliasToTable.set(tableName.toLowerCase(), tableName);
+  }
+
+  const resolveTableName = (hint: string) =>
+    aliasToTable.get(hint.toLowerCase()) || hint;
+
   const find = (tableHint: string, colHint: string) => {
+    const resolved = resolveTableName(tableHint);
     const t = tables.find(
       (x) =>
-        x.name.toLowerCase() === tableHint.toLowerCase() ||
-        x.name.toLowerCase().includes(tableHint.toLowerCase())
+        x.name.toLowerCase() === resolved.toLowerCase() ||
+        x.name.toLowerCase().includes(resolved.toLowerCase())
     );
     if (!t) return null;
     const c = columns.find(
@@ -237,12 +257,12 @@ export function parseSqlRelationships(sql: string, projectId: string) {
     /join\s+([a-zA-Z0-9_]+)\s+(?:as\s+)?([a-zA-Z0-9_]+)?\s+on\s+([a-zA-Z0-9_]+)\.([a-zA-Z0-9_]+)\s*=\s*([a-zA-Z0-9_]+)\.([a-zA-Z0-9_]+)/gi;
   let m: RegExpExecArray | null;
   while ((m = joinRe.exec(sql)) !== null) {
-    const leftTable = m[3];
+    const leftAlias = m[3];
     const leftCol = m[4];
-    const rightTable = m[5];
+    const rightAlias = m[5];
     const rightCol = m[6];
-    const left = find(leftTable, leftCol);
-    const right = find(rightTable, rightCol);
+    const left = find(leftAlias, leftCol);
+    const right = find(rightAlias, rightCol);
     if (left && right) {
       const id = createManualRelationship({
         projectId,
@@ -250,7 +270,7 @@ export function parseSqlRelationships(sql: string, projectId: string) {
         sourceColumnId: left.column.id,
         targetTableId: right.table.id,
         targetColumnId: right.column.id,
-        rationale: `Parsed from uploaded SQL JOIN: ${leftTable}.${leftCol} = ${rightTable}.${rightCol}`,
+        rationale: `Parsed from uploaded SQL JOIN: ${resolveTableName(leftAlias)}.${leftCol} = ${resolveTableName(rightAlias)}.${rightCol}`,
       });
       created.push(id);
     }

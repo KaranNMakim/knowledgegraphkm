@@ -23,9 +23,11 @@ export function parseOntologyText(text: string): ParsedOntology {
       const definition = colon[2].trim();
       concepts.push({ name, definition });
 
-      const tableMatch = definition.match(
-        /(?:table|maps?\s+to|corresponds\s+to)\s+`?([a-zA-Z0-9_]+)`?/i
-      );
+      const tableMatch =
+        definition.match(
+          /(?:maps?\s+to|corresponds\s+to)\s+(?:table\s+)?`?([a-zA-Z0-9_]+)`?/i
+        ) ||
+        definition.match(/table\s+`?([a-zA-Z0-9_]+)`?/i);
       const colMatch = definition.match(
         /(?:column|field)\s+`?([a-zA-Z0-9_]+)`?/i
       );
