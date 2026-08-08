@@ -47,3 +47,7 @@ next-env.d.ts
 # demo video binaries (allow the checked-in tour)
 *.mp4
 !docs/graphloom-demo-tour.mp4
+
+# Next.js auto-generated agent docs
+AGENTS.md
+CLAUDE.md
