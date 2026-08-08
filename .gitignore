@@ -45,3 +45,4 @@ data/graphloom.sqlite
 data/graphloom.sqlite-*
 data/uploads/
 data/retail/
+*.mp4
