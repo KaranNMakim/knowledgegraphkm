@@ -1,0 +1,80 @@
+{
+  "name": "graphloom-desktop",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Electron desktop wrapper and installer for GraphLoom",
+  "homepage": "https://github.com/KaranNMakim/knowledgegraphkm",
+  "author": "GraphLoom",
+  "main": "electron/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron .",
+    "prepare:resources": "node scripts/prepare-resources.cjs",
+    "prepare:resources:skip-build": "node scripts/prepare-resources.cjs --skip-build",
+    "pack": "electron-builder --dir",
+    "dist": "npm run prepare:resources && electron-builder",
+    "dist:linux": "npm run prepare:resources && electron-builder --linux AppImage deb",
+    "dist:win": "npm run prepare:resources && electron-builder --win nsis",
+    "dist:mac": "npm run prepare:resources && electron-builder --mac dmg",
+    "dist:dir": "npm run prepare:resources && electron-builder --dir"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "electron": "^35.1.2",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "app.graphloom.desktop",
+    "productName": "GraphLoom",
+    "copyright": "Copyright © GraphLoom",
+    "directories": {
+      "output": "release",
+      "buildResources": "assets"
+    },
+    "files": [
+      "electron/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "resources/graphloom-web",
+        "to": "graphloom-web"
+      },
+      {
+        "from": "resources/node",
+        "to": "node"
+      }
+    ],
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Office",
+      "maintainer": "GraphLoom <hello@graphloom.app>"
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "GraphLoom"
+    },
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "category": "public.app-category.productivity"
+    },
+    "dmg": {
+      "artifactName": "GraphLoom-${version}-mac.${ext}"
+    },
+    "artifactName": "GraphLoom-${version}-${os}-${arch}.${ext}",
+    "asar": true
+  }
+}
