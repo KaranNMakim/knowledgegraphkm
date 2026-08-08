@@ -1,0 +1,211 @@
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Outfit:wght@300;400;500;600;700&display=swap");
+@import "tailwindcss";
+
+:root {
+  --ink: #0b2431;
+  --ink-soft: #1c3d4d;
+  --sea: #0f6b62;
+  --sea-bright: #178a7e;
+  --sand: #efe8dc;
+  --sand-deep: #e2d6c4;
+  --paper: #f7f2ea;
+  --copper: #c4562c;
+  --copper-deep: #9e3f1c;
+  --mist: rgba(11, 36, 49, 0.08);
+  --line: rgba(11, 36, 49, 0.14);
+  --ok: #1f7a4c;
+  --warn: #a66b12;
+  --danger: #a33b2d;
+  --shadow: 0 18px 50px rgba(11, 36, 49, 0.12);
+  --font-display: "Fraunces", Georgia, serif;
+  --font-body: "Outfit", "Segoe UI", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  color: var(--ink);
+  font-family: var(--font-body);
+  background:
+    radial-gradient(1200px 600px at 10% -10%, rgba(23, 138, 126, 0.18), transparent 55%),
+    radial-gradient(900px 500px at 100% 0%, rgba(196, 86, 44, 0.12), transparent 50%),
+    linear-gradient(180deg, var(--paper) 0%, var(--sand) 55%, #e8dfd0 100%);
+  background-attachment: fixed;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+.brand-mark {
+  font-family: var(--font-display);
+  letter-spacing: -0.03em;
+}
+
+.surface {
+  background: rgba(247, 242, 234, 0.78);
+  border: 1px solid var(--line);
+  backdrop-filter: blur(10px);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: none;
+  border-radius: 0.55rem;
+  padding: 0.7rem 1.15rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 160ms ease, background 160ms ease, box-shadow 160ms ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn-primary {
+  background: var(--copper);
+  color: #fff8f2;
+  box-shadow: 0 10px 24px rgba(196, 86, 44, 0.28);
+}
+
+.btn-primary:hover {
+  background: var(--copper-deep);
+}
+
+.btn-secondary {
+  background: var(--ink);
+  color: var(--sand);
+}
+
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--ink);
+}
+
+.btn-sea {
+  background: var(--sea);
+  color: #f3fffc;
+}
+
+.field {
+  width: 100%;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.55);
+  border-radius: 0.55rem;
+  padding: 0.75rem 0.9rem;
+  outline: none;
+}
+
+.field:focus {
+  border-color: var(--sea);
+  box-shadow: 0 0 0 3px rgba(15, 107, 98, 0.15);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 999px;
+  padding: 0.2rem 0.65rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: rgba(15, 107, 98, 0.12);
+  color: var(--sea);
+}
+
+.chip-warn {
+  background: rgba(166, 107, 18, 0.14);
+  color: var(--warn);
+}
+
+.chip-ok {
+  background: rgba(31, 122, 76, 0.14);
+  color: var(--ok);
+}
+
+.chip-danger {
+  background: rgba(163, 59, 45, 0.12);
+  color: var(--danger);
+}
+
+.fade-up {
+  animation: fadeUp 560ms ease both;
+}
+
+.fade-up-delay {
+  animation: fadeUp 700ms ease 120ms both;
+}
+
+.drift {
+  animation: drift 8s ease-in-out infinite;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes drift {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.mesh {
+  background-image:
+    linear-gradient(rgba(11, 36, 49, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(11, 36, 49, 0.04) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+.tab {
+  padding: 0.65rem 0.9rem;
+  border-bottom: 2px solid transparent;
+  color: var(--ink-soft);
+  font-weight: 500;
+}
+
+.tab-active {
+  border-color: var(--copper);
+  color: var(--ink);
+  font-weight: 650;
+}
+
+.graph-shell {
+  min-height: 480px;
+  border-radius: 1rem;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background:
+    radial-gradient(circle at 20% 20%, rgba(23, 138, 126, 0.12), transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(196, 86, 44, 0.1), transparent 35%),
+    #f4eee4;
+}
