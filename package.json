@@ -6,8 +6,7 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "seed": "npx tsx scripts/seed-retail.ts"
+    "lint": "next lint"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
@@ -37,7 +36,6 @@
     "eslint": "^9",
     "eslint-config-next": "15.2.4",
     "tailwindcss": "^4",
-    "tsx": "^4.23.11",
     "typescript": "^5"
   }
 }
