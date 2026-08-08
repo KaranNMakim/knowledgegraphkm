@@ -1,15 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-cd /workspace
+cd "$(dirname "$0")/.."
 
-if [[ ! -d .venv ]]; then
-  python3 -m venv .venv
+if [[ -f package-lock.json ]]; then
+  npm ci
+else
+  npm install
 fi
 
-# shellcheck disable=SC1091
-source .venv/bin/activate
-
-python -m pip install --upgrade pip
-pip install -e ".[dev]"
-python -m kgkm.cli --init-db
+npm run build
