@@ -46,3 +46,4 @@ data/graphloom.sqlite-*
 data/uploads/
 data/retail/
 *.mp4
+!docs/graphloom-demo-tour.mp4
