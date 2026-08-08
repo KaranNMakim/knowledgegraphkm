@@ -48,3 +48,11 @@ data/retail/
 *.mp4
 !docs/graphloom-demo-tour.mp4
 !docs/graphloom-demo-tour-linkedin.mp4
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+data/
+*.db
