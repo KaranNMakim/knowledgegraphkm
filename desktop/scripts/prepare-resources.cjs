@@ -2,6 +2,9 @@
 /**
  * Prepare a production copy of the GraphLoom web app for Electron packaging.
  * Does not modify the web app source — only reads/builds/copies into desktop/resources/.
+ *
+ * Usage:
+ *   node scripts/prepare-resources.cjs [--skip-build] [--skip-node] [--platform=win32|linux|darwin]
  */
 const fs = require("fs");
 const path = require("path");
@@ -15,9 +18,27 @@ const repoRoot = path.resolve(desktopRoot, "..");
 const outRoot = path.join(desktopRoot, "resources", "graphloom-web");
 const nodeOut = path.join(desktopRoot, "resources", "node");
 
-function run(cmd, args, cwd) {
+function argValue(prefix) {
+  const hit = process.argv.find((a) => a.startsWith(prefix));
+  return hit ? hit.slice(prefix.length) : null;
+}
+
+function normalizePlatform(raw) {
+  const p = (raw || process.env.ELECTRON_BUILDER_PLATFORM || process.platform || "").toLowerCase();
+  if (p === "windows" || p === "win" || p === "win32") return "win32";
+  if (p === "mac" || p === "macos" || p === "osx" || p === "darwin") return "darwin";
+  if (p === "linux") return "linux";
+  return process.platform;
+}
+
+function run(cmd, args, cwd, env = {}) {
   console.log(`> ${cmd} ${args.join(" ")} (cwd=${cwd})`);
-  const res = spawnSync(cmd, args, { cwd, stdio: "inherit", shell: process.platform === "win32" });
+  const res = spawnSync(cmd, args, {
+    cwd,
+    stdio: "inherit",
+    shell: process.platform === "win32",
+    env: { ...process.env, ...env },
+  });
   if (res.status !== 0) {
     throw new Error(`Command failed (${res.status}): ${cmd} ${args.join(" ")}`);
   }
@@ -55,23 +76,19 @@ function download(url, dest) {
   });
 }
 
-async function ensureNodeBinary() {
-  const platform = process.env.ELECTRON_BUILDER_PLATFORM || process.platform;
-  const arch = process.env.ELECTRON_BUILDER_ARCH || process.arch;
+async function ensureNodeBinary(platform, arch) {
   const version = process.env.BUNDLED_NODE_VERSION || "22.14.0";
+  const a = arch === "ia32" || arch === "x86" ? "x86" : arch === "arm64" ? "arm64" : "x64";
 
   let nodeName;
   let url;
-  if (platform === "win32" || platform === "windows") {
+  if (platform === "win32") {
     nodeName = "node.exe";
-    url = `https://nodejs.org/dist/v${version}/win-${arch === "ia32" ? "x86" : "x64"}/node.exe`;
-  } else if (platform === "darwin" || platform === "mac") {
-    const a = arch === "arm64" ? "arm64" : "x64";
+    url = `https://nodejs.org/dist/v${version}/win-${a === "x86" ? "x86" : "x64"}/node.exe`;
+  } else if (platform === "darwin") {
     nodeName = "node";
-    // Download tarball and extract would be better; for mac use official binary tarball
     url = `https://nodejs.org/dist/v${version}/node-v${version}-darwin-${a}.tar.gz`;
   } else {
-    const a = arch === "arm64" ? "arm64" : "x64";
     nodeName = "node";
     url = `https://nodejs.org/dist/v${version}/node-v${version}-linux-${a}.tar.gz`;
   }
@@ -81,11 +98,10 @@ async function ensureNodeBinary() {
 
   if (url.endsWith(".tar.gz")) {
     const tarPath = path.join(desktopRoot, "resources", "node-dist.tar.gz");
-    console.log(`Downloading Node ${version}…`);
+    console.log(`Downloading Node ${version} for ${platform}-${a}…`);
     await download(url, tarPath);
     run("tar", ["-xzf", tarPath, "-C", nodeOut, "--strip-components=1"], desktopRoot);
     fs.rmSync(tarPath, { force: true });
-    // binary lives at nodeOut/bin/node — flatten for Electron resources/node/node
     const nested = path.join(nodeOut, "bin", "node");
     if (fs.existsSync(nested)) {
       const flat = path.join(desktopRoot, "resources", "_node_bin");
@@ -96,7 +112,7 @@ async function ensureNodeBinary() {
       fs.renameSync(flat, nodeOut);
     }
   } else {
-    console.log(`Downloading Node ${version}…`);
+    console.log(`Downloading Node ${version} for ${platform}-${a}…`);
     await download(url, path.join(nodeOut, nodeName));
     if (nodeName === "node") fs.chmodSync(path.join(nodeOut, nodeName), 0o755);
   }
@@ -104,13 +120,47 @@ async function ensureNodeBinary() {
   console.log(`Bundled Node ready at ${nodeOut}`);
 }
 
-function main() {
+function installNativeDeps(targetPlatform, arch) {
+  // Fresh production install for the host first (gets JS deps).
+  run("npm", ["ci", "--omit=dev"], outRoot);
+
+  // Reinstall better-sqlite3 for the *target* platform using prebuilds when possible.
+  const npmEnv = {
+    npm_config_platform: targetPlatform,
+    npm_config_arch: arch === "ia32" ? "ia32" : arch === "arm64" ? "arm64" : "x64",
+    npm_config_target_platform: targetPlatform,
+    npm_config_target_arch: arch === "ia32" ? "ia32" : arch === "arm64" ? "arm64" : "x64",
+  };
+
+  console.log(`Installing better-sqlite3 prebuild for ${targetPlatform}/${npmEnv.npm_config_arch}…`);
+  try {
+    run(
+      "npm",
+      ["rebuild", "better-sqlite3", "--foreground-scripts"],
+      outRoot,
+      npmEnv
+    );
+  } catch (e) {
+    console.warn("rebuild with target platform failed, trying reinstall…", e.message || e);
+    run(
+      "npm",
+      ["install", "better-sqlite3", "--no-save", "--foreground-scripts"],
+      outRoot,
+      npmEnv
+    );
+  }
+}
+
+async function main() {
   const skipNode = process.argv.includes("--skip-node");
   const skipBuild = process.argv.includes("--skip-build");
+  const targetPlatform = normalizePlatform(argValue("--platform="));
+  const arch = (argValue("--arch=") || process.env.ELECTRON_BUILDER_ARCH || "x64").replace(/^x86_64$/, "x64");
 
   console.log("Preparing GraphLoom web resources for Electron…");
   console.log(`Repo root: ${repoRoot}`);
   console.log(`Output:    ${outRoot}`);
+  console.log(`Target:    ${targetPlatform}/${arch}`);
 
   if (!skipBuild) {
     if (!fs.existsSync(path.join(repoRoot, "node_modules"))) {
@@ -137,29 +187,27 @@ function main() {
     copyPath(src, path.join(outRoot, rel));
   }
 
-  // Optional but useful for runtime/native module rebuild context
   for (const rel of ["README.md"]) {
     const src = path.join(repoRoot, rel);
     if (fs.existsSync(src)) copyPath(src, path.join(outRoot, rel));
   }
 
-  // Install production deps inside the resource copy (keeps repo root untouched)
-  run("npm", ["ci", "--omit=dev"], outRoot);
+  installNativeDeps(targetPlatform, arch);
 
-  // Ensure native module is present for this host when packaging locally
-  try {
-    run("npm", ["rebuild", "better-sqlite3"], outRoot);
-  } catch (e) {
-    console.warn("better-sqlite3 rebuild warning:", e.message || e);
+  if (!skipNode) {
+    process.env.ELECTRON_BUILDER_PLATFORM = targetPlatform;
+    process.env.ELECTRON_BUILDER_ARCH = arch;
+    await ensureNodeBinary(targetPlatform, arch);
   }
 
-  const done = async () => {
-    if (!skipNode) await ensureNodeBinary();
-    console.log("\nResources prepared.");
-    console.log("Next: npm run dist");
-  };
+  // Persist target marker for debugging packaged builds
+  fs.writeFileSync(
+    path.join(desktopRoot, "resources", "target.json"),
+    JSON.stringify({ platform: targetPlatform, arch, preparedAt: new Date().toISOString() }, null, 2)
+  );
 
-  return done();
+  console.log("\nResources prepared.");
+  console.log("Next: npm run dist / npm run dist:win / npm run dist:linux");
 }
 
 main().catch((err) => {

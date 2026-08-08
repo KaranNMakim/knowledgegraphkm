@@ -11,10 +11,11 @@
     "dev": "electron .",
     "prepare:resources": "node scripts/prepare-resources.cjs",
     "prepare:resources:skip-build": "node scripts/prepare-resources.cjs --skip-build",
+    "prepare:win": "node scripts/prepare-resources.cjs --skip-build --platform=win32 --arch=x64",
     "pack": "electron-builder --dir",
     "dist": "npm run prepare:resources && electron-builder",
     "dist:linux": "npm run prepare:resources && electron-builder --linux AppImage deb",
-    "dist:win": "npm run prepare:resources && electron-builder --win nsis",
+    "dist:win": "npm run prepare:win && CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --win nsis portable --x64",
     "dist:mac": "npm run prepare:resources && electron-builder --mac dmg",
     "dist:dir": "npm run prepare:resources && electron-builder --dir"
   },
@@ -55,7 +56,8 @@
     },
     "win": {
       "target": [
-        "nsis"
+        "nsis",
+        "portable"
       ]
     },
     "nsis": {
@@ -63,7 +65,11 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "GraphLoom"
+      "shortcutName": "GraphLoom",
+      "artifactName": "GraphLoom-${version}-win-${arch}-setup.${ext}"
+    },
+    "portable": {
+      "artifactName": "GraphLoom-${version}-win-${arch}-portable.${ext}"
     },
     "mac": {
       "target": [

@@ -53,9 +53,17 @@ Platform-specific:
 | Command | Output |
 |---------|--------|
 | `npm run dist:linux` | `.AppImage`, `.deb` |
-| `npm run dist:win` | NSIS `.exe` installer (best on Windows) |
+| `npm run dist:win` | Windows **NSIS setup `.exe`** + **portable `.exe`** |
 | `npm run dist:mac` | `.dmg` (best on macOS) |
 | `npm run dist:dir` | Unpacked app dir (smoke test) |
+
+### Windows `.exe` notes
+- `npm run dist:win` prepares **Windows** Node + native modules, then builds with electron-builder.
+- Cross-building from Linux requires **Wine** (`wine64`).
+- On a Windows machine you can run the same command without Wine.
+- Outputs typically:
+  - `GraphLoom-<version>-win-x64.exe` — NSIS installer
+  - `GraphLoom-<version>-win-x64.exe` portable variant (filename includes `portable` depending on builder version)
 
 `prepare:resources` will:
 
