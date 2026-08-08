@@ -46,8 +46,24 @@ App state lives in `data/graphloom.sqlite`. Bundled retail CSVs are written unde
 
 `.cursor/environment.json` installs npm dependencies / builds the app, then starts GraphLoom on port **3000**.
 
-## Notes
+## Troubleshooting
 
-Remote DB connectors validate configuration and register in the project; live JDBC/ODBC drivers are intentionally stubbed for this demo. Use CSV uploads or the retail seed for end-to-end graph building. Wire real drivers behind the same `/api/connectors` contract for production.
+### `npm run build` / install fails on `better-sqlite3`
+This app uses a native SQLite module. You need a working Node native build toolchain:
 
-Desktop Electron packaging (when present) lives under `desktop/` and does not change the web app source.
+- **Windows**: Visual Studio Build Tools with “Desktop development with C++”
+- **macOS**: Xcode CLT (`xcode-select --install`)
+- **Linux**: `python3`, `make`, `g++`
+
+Then:
+
+```bash
+npm rebuild better-sqlite3
+npm run build
+```
+
+### Node version
+Use **Node 20.9+** (Node 22 recommended).
+
+### Lint on Next.js 16
+`next lint` was removed in Next.js 16. Use `npm run lint` (runs ESLint directly).
