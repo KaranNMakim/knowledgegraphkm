@@ -25,9 +25,12 @@ Open [http://localhost:3000](http://localhost:3000), register an account, and ex
 Production:
 
 ```bash
+npm install
 npm run build
 npm run start
 ```
+
+> If you see `next: not found`, dependencies are not installed. Run `npm install` (or `npm ci`) from the **repo root**, then retry.
 
 ## Scripts
 
@@ -48,7 +51,16 @@ App state lives in `data/graphloom.sqlite`. Bundled retail CSVs are written unde
 
 ## Troubleshooting
 
-### `npm run build` / install fails on `better-sqlite3`
+### `sh: next: not found`
+Dependencies are missing or incomplete. From the repository root:
+
+```bash
+npm ci
+# if that fails: npm install
+npm run build
+```
+
+Do not run build from `desktop/` unless you are packaging the Electron app.
 This app uses a native SQLite module. You need a working Node native build toolchain:
 
 - **Windows**: Visual Studio Build Tools with “Desktop development with C++”
