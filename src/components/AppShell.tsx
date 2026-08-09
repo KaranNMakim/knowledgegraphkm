@@ -38,6 +38,7 @@ export function AppShell({
     ? [
         { href: `/projects/${projectId}`, label: "Overview" },
         { href: `/projects/${projectId}/connectors`, label: "Connectors" },
+        { href: `/projects/${projectId}/harmonization`, label: "Harmonization" },
         { href: `/projects/${projectId}/relationships`, label: "Relationships" },
         { href: `/projects/${projectId}/ontology`, label: "Ontology" },
         { href: `/projects/${projectId}/dictionary`, label: "Dictionary" },
