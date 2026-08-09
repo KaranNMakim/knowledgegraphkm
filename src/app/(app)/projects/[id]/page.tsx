@@ -44,10 +44,11 @@ export default function ProjectOverviewPage() {
           </Link>
         </div>
 
-        <div className="mt-8 grid gap-4 sm:grid-cols-3">
+        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {[
             ["Connectors", connectors.length, `/projects/${project.id}/connectors`],
             ["Tables", tables.length, `/projects/${project.id}/connectors`],
+            ["Harmonization", "Profile data", `/projects/${project.id}/harmonization`],
             ["Next step", "Confirm joins", `/projects/${project.id}/relationships`],
           ].map(([label, value, href]) => (
             <Link key={String(label)} href={String(href)} className="surface rounded-xl p-5">

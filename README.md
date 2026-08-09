@@ -11,6 +11,7 @@ Web app for building **knowledge graphs** from organizational databases.
 - **SQL upload** and **manual connection** tabs to establish relationships
 - **Plain-English ontology** upload that maps into the data dictionary
 - **Auto-built data dictionary** from tables, columns, relationships, and ontology
+- **Data harmonization** suite: fill rates, continuous stats (min/max/mean/median/std/IQR), categorical frequency distributions, and Pearson correlations
 - **Retail demo project** seeded with product / consumer / date / promotion / store / sales / inventory masters
 
 ## Quick start
